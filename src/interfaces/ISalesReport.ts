@@ -12,15 +12,14 @@ export interface ISaleReport {
     {
       productId: IProduct;
       qty: number;
-      unitSellingPrice: number;
     },
   ];
   totalAmount: number;
   expectedCloseDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
   status: string;
   probability: number;
   notes: String;
   source: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
