@@ -1,7 +1,7 @@
 import type { IZone } from "./IZone.ts";
 
 export interface IUser {
-  name: string;
+  fullname: string;
   email: string;
   role: string;
   zoneId: IZone;
