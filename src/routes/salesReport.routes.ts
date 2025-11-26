@@ -3,8 +3,9 @@ import {
   getCA,
   getCABySalesPerson,
   getCAByZone,
-  getNbSells,
+ getWonSales,
   getSellsPerProduct,
+  getCAByProductCategory,
 } from "../controllers/dashboard.controller.ts";
 import {
   createSalesReport,
@@ -15,11 +16,11 @@ import {
 
 const salesReportRoutes = Router();
 
-
 salesReportRoutes.get("/salesReports/ca", getCA);
 salesReportRoutes.get("/salesReports/ca/zone", getCAByZone);
 salesReportRoutes.get("/salesReports/ca/salesperson", getCABySalesPerson);
-salesReportRoutes.get("/salesReports/nbsells", getNbSells);
+salesReportRoutes.get("/salesReports/ca/productcategory", getCAByProductCategory);
+salesReportRoutes.get("/salesReports/wonsales", getWonSales);
 salesReportRoutes.get("/salesReports/sells/product", getSellsPerProduct);
 
 salesReportRoutes.get("/salesReports", getAllSalesReports);
