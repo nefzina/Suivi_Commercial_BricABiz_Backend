@@ -1,8 +1,7 @@
 import type { Request, Response } from "express";
 import { SalesReport } from "../models/SalesReport.model.ts";
 
-//  --------------------- CA / Zone ---------------------
-
+//  GET CA By Zone
 export const getCAByZone = async (req: Request, res: Response) => {
   try {
     const { from, to } = req.query;
@@ -54,8 +53,7 @@ export const getCAByZone = async (req: Request, res: Response) => {
   }
 };
 
-//  --------------------- CA / SalesPerson ---------------------
-
+//  GET CA By SalesPerson
 export const getCABySalesPerson = async (req: Request, res: Response) => {
   try {
     const { from, to } = req.query;
@@ -92,6 +90,7 @@ export const getCABySalesPerson = async (req: Request, res: Response) => {
         $group: {
           _id: "$salesPerson.fullname",
           totalCA: { $sum: "$totalAmount" },
+          totalSells: { $sum: "$products.qty" },
           count: { $sum: 1 },
         },
       },
@@ -107,8 +106,69 @@ export const getCABySalesPerson = async (req: Request, res: Response) => {
   }
 };
 
-//  --------------------- Total CA ---------------------
+//  GET CA BY PRODUCT CATEGORY
+export const getCAByProductCategory = async (req: Request, res: Response) => {
+  
+  try {
+    const { from, to } = req.query;
 
+    if (!from || !to) {
+      return res.status(400).json({ error: "from and to are mendatory." });
+    }
+
+    const fromDate = new Date(from as string);
+    const toDate = new Date(to as string);
+
+    const caByProductCategory = await SalesReport.aggregate([
+      {
+        $match: {
+          status: "won",
+          createdAt: { $gte: fromDate, $lte: toDate },
+        },
+      },
+      { $unwind: "$products" }, // déplier chaque produit vendu
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productInfo",
+        },
+      },
+      { $unwind: "$productInfo" },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "productInfo.categoryId",
+          foreignField: "_id",
+          as: "categoryInfo",
+        },
+      },
+      { $unwind: "$categoryInfo" },
+      {
+        $group: {
+          _id: "$productInfo.categoryId",
+          categoryName: { $first: "$categoryInfo.name" },
+          totalQty: { $sum: "$products.qty" },
+          totalCA: {
+            $sum: { $multiply: ["$products.qty", "$productInfo.unitPrice"] },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { totalCA: -1 },
+      },
+    ]);
+
+    res.json(caByProductCategory);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Erreur interne" });
+  }
+};
+
+//  GET Total CA
 export const getCA = async (req: Request, res: Response) => {
   try {
     const { from, to } = req.query;
@@ -144,8 +204,7 @@ export const getCA = async (req: Request, res: Response) => {
   }
 };
 
-//  --------------------- Sells per product ---------------------
-
+//  GET SELLS PER PRODUCT
 export const getSellsPerProduct = async (req: Request, res: Response) => {
   try {
     const { from, to } = req.query;
@@ -194,9 +253,9 @@ export const getSellsPerProduct = async (req: Request, res: Response) => {
   }
 };
 
-//  --------------------- total number of sells ---------------------
+// GET WON SALES
+export const getWonSales = async (req: Request, res: Response) => {
 
-export const getNbSells = async (req: Request, res: Response) => {
   try {
     const { from, to } = req.query;
 
@@ -207,33 +266,22 @@ export const getNbSells = async (req: Request, res: Response) => {
     const fromDate = new Date(from as string);
     const toDate = new Date(to as string);
 
-    const nbSells = await SalesReport.aggregate([
+    const wonSales = await SalesReport.aggregate([
       {
         $match: {
           status: "won",
           createdAt: { $gte: fromDate, $lte: toDate },
         },
       },
-      { $unwind: "$products" },
-      {
-        $lookup: {
-          from: "products",
-          localField: "products.productId",
-          foreignField: "_id",
-          as: "productInfo",
-        },
-      },
-      { $unwind: "$productInfo" },
       {
         $group: {
           _id: null,
-          totalQty: { $sum: "$products.qty" },
-          count: { $sum: 1 },
+          wonSales: { $sum: 1 },
         },
       },
     ]);
 
-    res.json(nbSells);
+    res.json(wonSales);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Erreur interne" });

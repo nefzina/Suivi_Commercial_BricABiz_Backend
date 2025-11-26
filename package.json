@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "seed": "node seed.ts",
+    "seed": "node src/seed/seed.ts",
     "start": "node src/common/server.ts",
     "dev": "npx nodemon --watch src --ext ts,json --exec ts-node src/common/server.ts",
     "lint": "eslint 'src/**/*.ts'",

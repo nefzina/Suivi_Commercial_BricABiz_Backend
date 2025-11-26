@@ -9,3 +9,11 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IUserPerformance {
+  _id?: null;
+  totalCA: number;
+  wonSales: number;
+  totalSales: number;
+  conversionRate: string; // toFixed(2)
+}

@@ -3,7 +3,7 @@ import type { ICategory } from "./ICategory.ts";
 export interface IProduct {
     name: string;
     sku: string;
-    category: ICategory;
+    categoryId: ICategory;
     unitPrice: number;
     costPrice: number;
     active: boolean;
