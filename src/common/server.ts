@@ -1,6 +1,13 @@
-import app from './app.js';
-import { config } from '../config/config.js';
+import app from "./app.ts";
+import { config } from "../config/config.ts";
+import { connectDB } from "../config/db.ts";
 
-app.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`);
-});
+async function startServer() {
+  await connectDB();
+
+  app.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+}
+
+startServer();
